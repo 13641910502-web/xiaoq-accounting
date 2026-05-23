@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "小Q记账",
+    "slug": "xiaoq-accounting",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "xiaoq-accounting",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.xiaoq.accounting"
+    },
+    "android": {
+      "package": "com.xiaoq.accounting",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "小Q记账 - 智能记账AI助手",
+      "shortName": "小Q记账",
+      "description": "智能记账，轻松理财。支持截图OCR、CSV导入、AI自动分类。",
+      "lang": "zh-CN",
+      "themeColor": "#4A90D9",
+      "backgroundColor": "#0a0a0a",
+      "display": "standalone",
+      "orientation": "portrait"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-secure-store"
+    ]
+  }
+}
