@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useBudgetStore } from '../../src/stores/budgetStore';
 import { useCategoryStore } from '../../src/stores/categoryStore';
-import { Colors, Typography, Spacing, BudgetLevelColors } from '../../src/constants';
+import { Colors, Typography, Spacing, BudgetLevelColors, BorderWidth } from '../../src/constants';
 import { formatAmount } from '../../src/utils/currency';
 
 export default function BudgetScreen() {
@@ -37,14 +37,14 @@ export default function BudgetScreen() {
       >
         <View style={styles.budgetHeader}>
           <View style={styles.budgetTitle}>
-            <Text style={styles.budgetIcon}>{cat?.icon ?? '📦'}</Text>
+            <View style={[styles.catMarker, { backgroundColor: cat?.color ?? Colors.black }]} />
             <Text style={styles.budgetName}>{item.budget.main_category ?? '总预算'}</Text>
           </View>
           <Text style={styles.budgetAmount}>
-            {formatAmount(item.spent)} / {formatAmount(item.budget.amount)}
+            {formatAmount(item.spent)} <Text style={styles.budgetTotal}>/ {formatAmount(item.budget.amount)}</Text>
           </Text>
         </View>
-        <View style={styles.progressBg}>
+        <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${pct * 100}%`, backgroundColor: color }]} />
         </View>
         <Text style={[styles.progressText, { color }]}>
@@ -58,7 +58,11 @@ export default function BudgetScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="wallet-outline" size={64} color={Colors.textTertiary} />
+      <View style={styles.emptyGeo}>
+        <View style={[styles.emptyGeoBox, { backgroundColor: Colors.red }]} />
+        <View style={[styles.emptyGeoBox, { backgroundColor: Colors.blue }]} />
+        <View style={[styles.emptyGeoBox, { backgroundColor: Colors.yellow }]} />
+      </View>
       <Text style={styles.emptyText}>暂无预算</Text>
       <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/budget/edit')}>
         <Text style={styles.addBtnText}>设置预算</Text>
@@ -77,7 +81,7 @@ export default function BudgetScreen() {
       />
       {statuses.length > 0 && (
         <TouchableOpacity style={styles.fab} onPress={() => router.push('/budget/edit')}>
-          <Ionicons name="add" size={28} color={Colors.white} />
+          <Ionicons name="add" size={24} color={Colors.white} />
         </TouchableOpacity>
       )}
     </View>
@@ -86,46 +90,50 @@ export default function BudgetScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  listContent: { padding: Spacing.md },
+  listContent: { padding: Spacing.lg },
   emptyList: { flex: 1 },
   budgetCard: {
     backgroundColor: Colors.surface,
-    borderRadius: 12,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
   },
   budgetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
   budgetTitle: { flexDirection: 'row', alignItems: 'center' },
-  budgetIcon: { fontSize: 20, marginRight: Spacing.sm },
-  budgetName: { ...Typography.body, color: Colors.text, fontWeight: '600' },
-  budgetAmount: { ...Typography.caption, color: Colors.textSecondary },
-  progressBg: {
-    height: 8,
+  catMarker: { width: 4, height: 20, marginRight: Spacing.sm },
+  budgetName: { ...Typography.bodyBold, color: Colors.black },
+  budgetAmount: { ...Typography.bodyBold, color: Colors.black },
+  budgetTotal: { ...Typography.bodySmall, color: Colors.midGray },
+  progressTrack: {
+    height: 10,
     backgroundColor: Colors.background,
-    borderRadius: 4,
-    overflow: 'hidden',
+    borderWidth: BorderWidth.thin,
+    borderColor: Colors.black,
   },
-  progressFill: { height: '100%', borderRadius: 4 },
-  progressText: { ...Typography.caption, marginTop: Spacing.sm },
+  progressFill: { height: '100%' },
+  progressText: { ...Typography.label, marginTop: Spacing.sm },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xxxl },
-  emptyText: { ...Typography.body, color: Colors.textTertiary, marginTop: Spacing.md, marginBottom: Spacing.xl },
+  emptyGeo: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xl },
+  emptyGeoBox: { width: 24, height: 24 },
+  emptyText: { ...Typography.bodyBold, color: Colors.textSecondary, marginBottom: Spacing.xl },
   addBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.black,
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.md,
-    borderRadius: 8,
   },
-  addBtnText: { ...Typography.body, color: Colors.white, fontWeight: '600' },
+  addBtnText: { ...Typography.bodyBold, color: Colors.white },
   fab: {
     position: 'absolute',
     bottom: Spacing.xl,
     right: Spacing.xl,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
+    width: 52,
+    height: 52,
+    borderRadius: 0,
+    backgroundColor: Colors.red,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
   },
 });

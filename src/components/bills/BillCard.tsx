@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing } from '../../constants';
+import { Colors, Typography, Spacing, BorderWidth } from '../../constants';
 import { formatAmount } from '../../utils/currency';
 import { formatDate } from '../../utils/date';
 import type { Bill } from '../../types/bill';
@@ -14,7 +14,17 @@ interface Props {
   showDate?: boolean;
 }
 
+function BauhausIcon({ color }: { color: string }) {
+  return (
+    <View style={[styles.geoIcon, { backgroundColor: color }]}>
+      <View style={styles.geoInner} />
+    </View>
+  );
+}
+
 export function BillCard({ bill, category, onPress, onLongPress, showDate = true }: Props) {
+  const catColor = category?.color ?? Colors.midGray;
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -23,10 +33,8 @@ export function BillCard({ bill, category, onPress, onLongPress, showDate = true
       activeOpacity={0.6}
       delayLongPress={500}
     >
-      {/* Category Icon */}
-      <View style={[styles.iconWrap, { backgroundColor: (category?.color ?? '#B2BEC3') + '18' }]}>
-        <Text style={styles.icon}>{category?.icon ?? '📦'}</Text>
-      </View>
+      {/* Bauhaus geometric category marker */}
+      <View style={[styles.geoMarker, { backgroundColor: catColor }]} />
 
       {/* Info */}
       <View style={styles.info}>
@@ -43,33 +51,23 @@ export function BillCard({ bill, category, onPress, onLongPress, showDate = true
             </View>
           ) : null}
           {bill.note ? (
-            <Ionicons name="document-text" size={12} color={Colors.textTertiary} style={styles.noteIcon} />
+            <Ionicons name="document-text" size={12} color={Colors.midGray} style={styles.noteIcon} />
           ) : null}
         </View>
       </View>
 
       {/* Amount */}
       <View style={styles.amountCol}>
-        <Text style={styles.amount}>{formatAmount(bill.amount)}</Text>
+        <Text style={[styles.amount, { color: bill.amount >= 0 ? Colors.black : Colors.red }]}>
+          {formatAmount(bill.amount)}
+        </Text>
         <View style={styles.sourceRow}>
+          <View style={[styles.catDot, { backgroundColor: catColor }]} />
           <Text style={styles.categoryLabel}>{bill.main_category}</Text>
-          {bill.source !== 'manual' && (
-            <Text style={styles.sourceBadge}>{sourceEmoji(bill.source)}</Text>
-          )}
         </View>
       </View>
     </TouchableOpacity>
   );
-}
-
-function sourceEmoji(source: string): string {
-  switch (source) {
-    case 'wechat': return '💬';
-    case 'alipay': return '💙';
-    case 'ocr': return '📷';
-    case 'csv': return '📄';
-    default: return '';
-  }
 }
 
 const styles = StyleSheet.create({
@@ -79,31 +77,32 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
+    borderBottomWidth: BorderWidth.thin,
+    borderBottomColor: Colors.lightGray,
   },
-  iconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Geometric marker (vertical bar) instead of rounded emoji circle
+  geoMarker: {
+    width: 4,
+    height: 36,
     marginRight: Spacing.md,
   },
-  icon: { fontSize: 20 },
   info: { flex: 1, marginRight: Spacing.md },
-  description: { ...Typography.body, color: Colors.text },
+  description: { ...Typography.bodyBold, color: Colors.black },
   meta: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: Spacing.sm },
   date: { ...Typography.caption, color: Colors.textTertiary },
   subBadge: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.black,
     paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 4,
+    paddingVertical: 2,
   },
-  subText: { ...Typography.caption, color: Colors.primary, fontSize: 10 },
+  subText: { ...Typography.caption, color: Colors.white, fontSize: 10 },
   noteIcon: { marginLeft: 2 },
   amountCol: { alignItems: 'flex-end' },
-  amount: { ...Typography.amount, color: Colors.text },
-  sourceRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2, gap: 4 },
-  categoryLabel: { ...Typography.caption, color: Colors.textTertiary, fontSize: 10 },
-  sourceBadge: { fontSize: 12 },
+  amount: { ...Typography.amount, fontSize: 17 },
+  sourceRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
+  catDot: { width: 6, height: 6 },
+  categoryLabel: { ...Typography.caption, color: Colors.midGray },
+  // Unused but kept for reference
+  geoIcon: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  geoInner: { width: 10, height: 10 },
 });

@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing } from '../../src/constants';
+import { Colors, Typography, Spacing, BorderWidth } from '../../src/constants';
 import { useSettingsStore } from '../../src/stores/settingsStore';
 
 export default function SettingsScreen() {
@@ -52,9 +52,13 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Bauhaus header: geometric composition */}
       <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Ionicons name="wallet" size={32} color={Colors.primary} />
+        <View style={styles.headerComposition}>
+          <View style={[styles.geoBox, { backgroundColor: Colors.red }]} />
+          <View style={[styles.geoBox, { backgroundColor: Colors.blue }]} />
+          <View style={[styles.geoBox, { backgroundColor: Colors.yellow }]} />
+          <View style={[styles.geoBox, { backgroundColor: Colors.black }]} />
         </View>
         <Text style={styles.appName}>小Q记账</Text>
         <Text style={styles.appDesc}>智能记账，轻松理财</Text>
@@ -70,12 +74,14 @@ export default function SettingsScreen() {
               onPress={() => item.route ? router.push(item.route) : null}
               activeOpacity={0.6}
             >
-              <Ionicons name={item.icon as any} size={22} color={Colors.primary} style={styles.menuIcon} />
+              <View style={styles.menuIconWrap}>
+                <Ionicons name={item.icon as any} size={20} color={Colors.black} />
+              </View>
               <View style={styles.menuContent}>
                 <Text style={styles.menuLabel}>{item.label}</Text>
                 <Text style={styles.menuDesc}>{item.desc}</Text>
               </View>
-              {'right' in item ? item.right : (item.route ? <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} /> : null)}
+              {'right' in item ? item.right : (item.route ? <Ionicons name="chevron-forward" size={16} color={Colors.black} /> : null)}
             </TouchableOpacity>
           ))}
         </View>
@@ -90,26 +96,23 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingVertical: Spacing.xxl,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.white,
+    borderBottomWidth: BorderWidth.heavy,
+    borderBottomColor: Colors.black,
     marginBottom: Spacing.md,
   },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.md,
+  headerComposition: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
-  appName: { ...Typography.h2, color: Colors.text },
-  appDesc: { ...Typography.caption, color: Colors.textSecondary, marginTop: Spacing.xs },
+  geoBox: { width: 20, height: 20 },
+  appName: { ...Typography.h2, color: Colors.black },
+  appDesc: { ...Typography.bodySmall, color: Colors.textSecondary, marginTop: Spacing.xs },
   group: { marginBottom: Spacing.md },
   groupTitle: {
-    ...Typography.caption,
+    ...Typography.label,
     color: Colors.textSecondary,
-    fontWeight: '600',
-    textTransform: 'uppercase',
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
   },
@@ -119,26 +122,33 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border,
+    borderBottomWidth: BorderWidth.thin,
+    borderBottomColor: Colors.lightGray,
   },
-  menuIcon: { marginRight: Spacing.md },
+  menuIconWrap: {
+    width: 36,
+    height: 36,
+    borderWidth: BorderWidth.thin,
+    borderColor: Colors.black,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.md,
+  },
   menuContent: { flex: 1 },
-  menuLabel: { ...Typography.body, color: Colors.text },
+  menuLabel: { ...Typography.bodyBold, color: Colors.black },
   menuDesc: { ...Typography.caption, color: Colors.textTertiary, marginTop: 1 },
   toggle: {
-    width: 52,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.border,
-    padding: 3,
+    width: 48,
+    height: 26,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
+    padding: 2,
   },
-  toggleActive: { backgroundColor: Colors.primary },
+  toggleActive: { backgroundColor: Colors.black },
   toggleKnob: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: Colors.white,
+    width: 18,
+    height: 18,
+    backgroundColor: Colors.black,
   },
-  toggleKnobActive: { alignSelf: 'flex-end' },
+  toggleKnobActive: { alignSelf: 'flex-end', backgroundColor: Colors.white },
 });

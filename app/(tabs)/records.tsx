@@ -158,10 +158,9 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.md,
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
-    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: Colors.black,
     paddingHorizontal: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   searchInput: {
     flex: 1,
@@ -175,13 +174,13 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.background,
   },
-  summaryText: { ...Typography.caption, color: Colors.textTertiary },
+  summaryText: { ...Typography.label, color: Colors.textSecondary },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: Spacing.xxxl * 2,
   },
-  emptyText: { ...Typography.body, color: Colors.textTertiary, marginTop: Spacing.md },
+  emptyText: { ...Typography.bodyBold, color: Colors.textSecondary, marginTop: Spacing.md },
   emptyHint: { ...Typography.caption, color: Colors.textTertiary, marginTop: Spacing.xs },
 });

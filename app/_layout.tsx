@@ -3,6 +3,22 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { initializeDatabase } from '../src/services/database';
 import { useSettingsStore } from '../src/stores/settingsStore';
+import { Colors } from '../src/constants/colors';
+import { BorderWidth } from '../src/constants/spacing';
+
+const headerStyle = {
+  backgroundColor: Colors.white,
+  borderBottomWidth: BorderWidth.normal,
+  borderBottomColor: Colors.black,
+} as const;
+
+const headerTitleStyle = {
+  color: Colors.black,
+  fontWeight: '800' as const,
+  fontSize: 15,
+  letterSpacing: 1,
+  textTransform: 'uppercase' as const,
+};
 
 export default function RootLayout() {
   const darkMode = useSettingsStore((s) => s.darkMode);
@@ -15,8 +31,15 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar style={darkMode ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerStyle,
+          headerTitleStyle,
+          headerTintColor: Colors.black,
+        }}
+      >
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="records/edit/new" options={{ title: '添加账单', headerShown: true, presentation: 'modal' }} />
         <Stack.Screen name="records/edit/[id]" options={{ title: '编辑账单', headerShown: true, presentation: 'modal' }} />

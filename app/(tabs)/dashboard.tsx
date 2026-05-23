@@ -3,13 +3,20 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, useWind
 import { Ionicons } from '@expo/vector-icons';
 import { useChartStore } from '../../src/stores/chartStore';
 import { useBillStore } from '../../src/stores/billStore';
-import { Colors, Typography, Spacing } from '../../src/constants';
+import { Colors, Typography, Spacing, BorderRadius, BorderWidth } from '../../src/constants';
 import { formatAmount } from '../../src/utils/currency';
 import { getCurrentYearMonth, getMonthLabel } from '../../src/utils/date';
 import { CategoryPieChart } from '../../src/components/charts/CategoryPieChart';
 import { MonthlyBarChart } from '../../src/components/charts/MonthlyBarChart';
 import { TrendLineChart } from '../../src/components/charts/TrendLineChart';
 import { DailyHeatmap } from '../../src/components/charts/DailyHeatmap';
+
+const STAT_CARDS = [
+  { key: 'spending', title: '本月支出', color: Colors.black, textColor: Colors.white },
+  { key: 'mom', title: '环比', color: Colors.red, textColor: Colors.white },
+  { key: 'count', title: '笔数', color: Colors.blue, textColor: Colors.white },
+  { key: 'top', title: '最多', color: Colors.yellow, textColor: Colors.black },
+] as const;
 
 export default function DashboardScreen() {
   const { summary, categoryData, monthlyData, trendData, heatmapData, selectedMonth, loadDashboard, setSelectedMonth } = useChartStore();
@@ -31,10 +38,21 @@ export default function DashboardScreen() {
     loadDashboard(newMonth);
   };
 
+  const statValue = (key: string) => {
+    if (!summary) return { value: '--', sub: '' };
+    switch (key) {
+      case 'spending': return { value: formatAmount(summary.totalSpending), sub: '' };
+      case 'mom': return { value: `${summary.monthOverMonth > 0 ? '+' : ''}${summary.monthOverMonth}%`, sub: '' };
+      case 'count': return { value: String(summary.billCount), sub: '笔' };
+      case 'top': return { value: summary.topCategory.icon, sub: summary.topCategory.name };
+    }
+    return { value: '--', sub: '' };
+  };
+
   const chartGrid = (
-    <View style={isDesktop ? styles.desktopGrid : undefined}>
-      <View style={[styles.chartCard, isDesktop && styles.chartCardHalf]}>
-        <Text style={styles.chartTitle}>分类支出</Text>
+    <View style={[isDesktop && styles.desktopGrid]}>
+      <View style={[styles.chartCard, isDesktop && styles.chartHalf]}>
+        <Text style={styles.chartLabel}>分类支出</Text>
         {categoryData.length > 0 ? (
           <CategoryPieChart data={categoryData} />
         ) : (
@@ -42,8 +60,8 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={[styles.chartCard, isDesktop && styles.chartCardHalf]}>
-        <Text style={styles.chartTitle}>月度对比</Text>
+      <View style={[styles.chartCard, isDesktop && styles.chartHalf]}>
+        <Text style={styles.chartLabel}>月度对比</Text>
         {monthlyData.length > 0 ? (
           <MonthlyBarChart data={monthlyData} />
         ) : (
@@ -51,8 +69,8 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={[styles.chartCard, isDesktop && styles.chartCardFull]}>
-        <Text style={styles.chartTitle}>本月趋势</Text>
+      <View style={[styles.chartCard, isDesktop && styles.chartFull]}>
+        <Text style={styles.chartLabel}>本月趋势</Text>
         {trendData.length > 0 ? (
           <TrendLineChart data={trendData} />
         ) : (
@@ -60,9 +78,11 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={[styles.chartCard, isDesktop && styles.chartCardFull]}>
-        <Text style={styles.chartTitle}>支出热力图</Text>
-        <Text style={styles.chartSubtitle}>近三个月每日支出分布</Text>
+      <View style={[styles.chartCard, isDesktop && styles.chartFull]}>
+        <View style={styles.chartHeaderRow}>
+          <Text style={styles.chartLabel}>支出热力图</Text>
+          <Text style={styles.chartSub}>近三个月每日支出分布</Text>
+        </View>
         <DailyHeatmap data={heatmapData} />
       </View>
     </View>
@@ -70,56 +90,45 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={[styles.content, isDesktop && styles.contentWide]}>
-      {/* Header */}
-      <View style={[styles.headerRow, isDesktop && styles.headerRowDesktop]}>
+      {/* Header with month picker */}
+      <View style={[styles.header, isDesktop && styles.headerWide]}>
         <View>
           <Text style={styles.pageTitle}>概览</Text>
-          <Text style={styles.pageSubtitle}>智能记账，轻松理财</Text>
+          <View style={styles.titleBar} />
+          <Text style={styles.pageSub}>智能记账，轻松理财</Text>
         </View>
 
-        <View style={styles.monthSelector}>
+        <View style={styles.monthPicker}>
           <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.monthBtn}>
-            <Ionicons name="chevron-back" size={18} color={Colors.text} />
+            <Ionicons name="chevron-back" size={16} color={Colors.black} />
           </TouchableOpacity>
           <Text style={styles.monthText}>{getMonthLabel(selectedMonth)}</Text>
           <TouchableOpacity onPress={() => changeMonth(1)} style={styles.monthBtn}>
-            <Ionicons name="chevron-forward" size={18} color={Colors.text} />
+            <Ionicons name="chevron-forward" size={16} color={Colors.black} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Stats Row */}
-      <View style={[styles.statsRow, isDesktop && styles.statsRowDesktop]}>
-        <View style={[styles.statCard, { backgroundColor: Colors.primary }]}>
-          <Text style={styles.statLabel}>本月支出</Text>
-          <Text style={styles.statAmount}>
-            {summary ? formatAmount(summary.totalSpending) : '¥0.00'}
-          </Text>
-        </View>
-
-        <View style={[styles.statCard, { backgroundColor: isDesktop ? Colors.surface : Colors.white }]}>
-          <Text style={[styles.statLabel, { color: isDesktop ? Colors.textSecondary : Colors.white }]}>环比</Text>
-          <Text style={[styles.statValue, summary?.monthOverMonth && summary.monthOverMonth > 0 ? styles.statUp : null, { color: isDesktop ? Colors.text : Colors.white }]}>
-            {summary ? `${summary.monthOverMonth > 0 ? '+' : ''}${summary.monthOverMonth}%` : '--'}
-          </Text>
-        </View>
-
-        <View style={[styles.statCard, { backgroundColor: isDesktop ? Colors.surface : Colors.white + 'DD' }]}>
-          <Text style={[styles.statLabel, { color: isDesktop ? Colors.textSecondary : Colors.white }]}>笔数</Text>
-          <Text style={[styles.statValue, { color: isDesktop ? Colors.text : Colors.white }]}>
-            {summary?.billCount ?? '--'}
-          </Text>
-        </View>
-
-        <View style={[styles.statCard, { backgroundColor: isDesktop ? Colors.surface : Colors.white + 'CC' }]}>
-          <Text style={[styles.statLabel, { color: isDesktop ? Colors.textSecondary : Colors.white }]}>最多</Text>
-          <Text style={[styles.statValue, { color: summary?.topCategory.color ?? Colors.text }]} numberOfLines={1}>
-            {summary ? `${summary.topCategory.icon} ${summary.topCategory.name}` : '--'}
-          </Text>
-        </View>
+      {/* Stat Cards — Bauhaus color blocks */}
+      <View style={[styles.statsRow, isDesktop && styles.statsRowWide]}>
+        {STAT_CARDS.map((card) => (
+          <View key={card.key} style={[styles.statCard, { backgroundColor: card.color }]}>
+            <Text style={[styles.statLabel, { color: card.textColor === Colors.white ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }]}>
+              {card.title}
+            </Text>
+            <Text style={[styles.statValue, { color: card.textColor }]} numberOfLines={1}>
+              {statValue(card.key).value}
+            </Text>
+            {statValue(card.key).sub ? (
+              <Text style={[styles.statSub, { color: card.textColor === Colors.white ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }]}>
+                {statValue(card.key).sub}
+              </Text>
+            ) : null}
+          </View>
+        ))}
       </View>
 
-      {/* Charts */}
+      {/* Chart grid */}
       {chartGrid}
     </ScrollView>
   );
@@ -130,54 +139,70 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg, paddingBottom: Spacing.xxxl },
   contentWide: { maxWidth: 1200, alignSelf: 'center', width: '100%' },
 
-  headerRow: {
+  // Header
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
+    alignItems: 'flex-start',
+    marginBottom: Spacing.xl,
   },
-  headerRowDesktop: { marginBottom: Spacing.xl },
-  pageTitle: { ...Typography.h2, color: Colors.text },
-  pageSubtitle: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
-
-  monthSelector: {
+  headerWide: { marginBottom: Spacing.xxxl },
+  pageTitle: { ...Typography.h1, color: Colors.black },
+  titleBar: {
+    width: 48,
+    height: BorderWidth.heavy,
+    backgroundColor: Colors.red,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  pageSub: { ...Typography.bodySmall, color: Colors.textSecondary },
+  monthPicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderRadius: 10,
+    gap: Spacing.sm,
+    backgroundColor: Colors.white,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
   },
   monthBtn: { padding: Spacing.xs },
-  monthText: { ...Typography.body, color: Colors.text, fontWeight: '600', minWidth: 90, textAlign: 'center' },
+  monthText: { ...Typography.bodyBold, color: Colors.black, minWidth: 100, textAlign: 'center' },
 
-  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
-  statsRowDesktop: { gap: Spacing.md, marginBottom: Spacing.xl },
+  // Stat cards
+  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xl },
+  statsRowWide: { gap: Spacing.md, marginBottom: Spacing.xxxl },
   statCard: {
     flex: 1,
-    borderRadius: 12,
-    padding: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: Spacing.lg,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
   },
-  statLabel: { ...Typography.caption, color: 'rgba(255,255,255,0.8)', marginBottom: 4 },
-  statAmount: { ...Typography.amount, color: Colors.white, fontSize: 18, fontWeight: '700' },
-  statValue: { ...Typography.h3, color: Colors.white, fontSize: 16 },
-  statUp: { color: '#FFD93D' },
+  statLabel: { ...Typography.label, marginBottom: Spacing.xs },
+  statValue: { ...Typography.amount, fontSize: 22 },
+  statSub: { ...Typography.caption, marginTop: 2 },
 
+  // Charts
   chartCard: {
     backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: Spacing.lg,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
+    padding: Spacing.xl,
     marginBottom: Spacing.lg,
   },
-  chartCardHalf: { flex: 1, minWidth: 360, marginBottom: 0 },
-  chartCardFull: { width: '100%' },
-  chartTitle: { ...Typography.h3, color: Colors.text, marginBottom: Spacing.xs },
-  chartSubtitle: { ...Typography.caption, color: Colors.textTertiary, marginBottom: Spacing.md },
+  chartHalf: { flex: 1, minWidth: 360, marginBottom: 0 },
+  chartFull: { width: '100%' },
+  chartHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: Spacing.md,
+  },
+  chartLabel: { ...Typography.label, color: Colors.black, marginBottom: Spacing.md },
+  chartSub: { ...Typography.caption, color: Colors.textTertiary },
   emptyText: { ...Typography.body, color: Colors.textTertiary, textAlign: 'center', paddingVertical: Spacing.xxxl },
 
+  // Grid
   desktopGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

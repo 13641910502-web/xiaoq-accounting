@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
-import { Colors, Typography } from '../../constants';
+import { Colors, Typography, BorderWidth } from '../../constants';
 import { formatAmount } from '../../utils/currency';
 import type { ChartDataPoint } from '../../types/chart';
 
@@ -19,7 +19,7 @@ export function CategoryPieChart({ data }: Props) {
   }));
 
   const screenWidth = Dimensions.get('window').width;
-  const chartSize = Math.min(screenWidth - 80, 240);
+  const chartSize = Math.min(screenWidth - 80, 220);
 
   return (
     <View style={styles.container}>
@@ -27,8 +27,8 @@ export function CategoryPieChart({ data }: Props) {
         data={chartData}
         donut
         radius={chartSize / 2}
-        innerRadius={chartSize / 2 - 30}
-        innerCircleColor={Colors.surface}
+        innerRadius={chartSize / 2 - 28}
+        innerCircleColor={Colors.white}
         showText={false}
         centerLabelComponent={() => (
           <View style={styles.centerLabel}>
@@ -42,7 +42,7 @@ export function CategoryPieChart({ data }: Props) {
           const pct = total > 0 ? Math.round((d.value / total) * 100) : 0;
           return (
             <View key={d.label} style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: d.color }]} />
+              <View style={[styles.legendSquare, { backgroundColor: d.color }]} />
               <Text style={styles.legendLabel} numberOfLines={1}>{d.label}</Text>
               <Text style={styles.legendPct}>{pct}%</Text>
             </View>
@@ -56,11 +56,11 @@ export function CategoryPieChart({ data }: Props) {
 const styles = StyleSheet.create({
   container: { alignItems: 'center' },
   centerLabel: { alignItems: 'center' },
-  centerAmount: { ...Typography.amount, color: Colors.text, fontSize: 16 },
-  centerText: { ...Typography.caption, color: Colors.textTertiary },
+  centerAmount: { ...Typography.amount, color: Colors.black },
+  centerText: { ...Typography.label, color: Colors.midGray },
   legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 16, justifyContent: 'center', gap: 8 },
   legendItem: { flexDirection: 'row', alignItems: 'center', width: '45%', marginBottom: 6 },
-  legendDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
+  legendSquare: { width: 8, height: 8, marginRight: 6 },
   legendLabel: { ...Typography.caption, color: Colors.textSecondary, flex: 1 },
   legendPct: { ...Typography.caption, color: Colors.textTertiary },
 });

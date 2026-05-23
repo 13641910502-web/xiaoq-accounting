@@ -3,15 +3,25 @@ export const Spacing = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+  section: 56,
 } as const;
 
+// Bauhaus: minimal border radius, sharp geometric forms
 export const BorderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  none: 0,
+  sm: 2,
+  md: 4,
+  lg: 8,
   full: 9999,
+} as const;
+
+// Bauhaus: bold borders for geometric emphasis
+export const BorderWidth = {
+  thin: 1,
+  normal: 2,
+  thick: 3,
+  heavy: 5,
 } as const;

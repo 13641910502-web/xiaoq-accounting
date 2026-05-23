@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Modal, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing } from '../../constants';
+import { Colors, Typography, Spacing, BorderWidth } from '../../constants';
 import type { Category } from '../../types/category';
 
 interface FilterState {
@@ -59,34 +59,37 @@ export function BillFilterBar({ categories, activeFilter, onFilterChange, onClea
 
   return (
     <View style={styles.container}>
-      {/* Category Chips */}
+      {/* Category filter chips */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.chipScroll}
         contentContainerStyle={styles.chipContent}
       >
-        {categories.map(cat => (
-          <TouchableOpacity
-            key={cat.id}
-            style={[styles.chip, activeFilter.categories.includes(cat.name) && styles.chipActive]}
-            onPress={() => toggleCategory(cat.name)}
-          >
-            <Text style={styles.chipIcon}>{cat.icon}</Text>
-            <Text style={[styles.chipText, activeFilter.categories.includes(cat.name) && styles.chipTextActive]}>
-              {cat.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {categories.map(cat => {
+          const active = activeFilter.categories.includes(cat.name);
+          return (
+            <TouchableOpacity
+              key={cat.id}
+              style={[styles.chip, active && styles.chipActive]}
+              onPress={() => toggleCategory(cat.name)}
+            >
+              <View style={[styles.chipDot, { backgroundColor: cat.color }]} />
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
-      {/* Filter Actions Row */}
+      {/* Action row */}
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={[styles.actionBtn, activeFilter.dateRange && styles.actionBtnActive]}
           onPress={() => setShowDateSheet(true)}
         >
-          <Ionicons name="calendar-outline" size={16} color={activeFilter.dateRange ? Colors.primary : Colors.textSecondary} />
+          <Ionicons name="calendar-outline" size={14} color={activeFilter.dateRange ? Colors.white : Colors.black} />
           <Text style={[styles.actionText, activeFilter.dateRange && styles.actionTextActive]}>
             {activeFilter.dateRange ? `${activeFilter.dateRange.start.slice(5)}~${activeFilter.dateRange.end.slice(5)}` : '日期'}
           </Text>
@@ -99,7 +102,7 @@ export function BillFilterBar({ categories, activeFilter, onFilterChange, onClea
             onChangeText={v => onFilterChange({ ...activeFilter, amountMin: v })}
             placeholder="最低"
             keyboardType="decimal-pad"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={Colors.midGray}
           />
           <Text style={styles.amountSep}>-</Text>
           <TextInput
@@ -108,23 +111,22 @@ export function BillFilterBar({ categories, activeFilter, onFilterChange, onClea
             onChangeText={v => onFilterChange({ ...activeFilter, amountMax: v })}
             placeholder="最高"
             keyboardType="decimal-pad"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={Colors.midGray}
           />
         </View>
 
         {hasActiveFilter && (
           <TouchableOpacity style={styles.clearBtn} onPress={onClear}>
-            <Ionicons name="close-circle" size={16} color={Colors.error} />
             <Text style={styles.clearText}>重置</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Date Preset Modal */}
+      {/* Date preset modal */}
       <Modal visible={showDateSheet} transparent animationType="slide" onRequestClose={() => setShowDateSheet(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowDateSheet(false)}>
           <View style={styles.dateSheet}>
-            <Text style={styles.sheetTitle}>选择日期范围</Text>
+            <Text style={styles.sheetTitle}>选择日期</Text>
             {DATE_PRESETS.map(p => (
               <TouchableOpacity key={p.label} style={styles.dateOption} onPress={() => applyDatePreset(p.get)}>
                 <Text style={styles.dateOptionText}>{p.label}</Text>
@@ -137,7 +139,7 @@ export function BillFilterBar({ categories, activeFilter, onFilterChange, onClea
                 setShowDateSheet(false);
               }}
             >
-              <Text style={[styles.dateOptionText, { color: Colors.error }]}>清除日期筛选</Text>
+              <Text style={[styles.dateOptionText, { color: Colors.red }]}>清除筛选</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -147,62 +149,67 @@ export function BillFilterBar({ categories, activeFilter, onFilterChange, onClea
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: Colors.surface, paddingBottom: Spacing.sm },
-  chipScroll: { maxHeight: 44 },
+  container: { backgroundColor: Colors.background, paddingBottom: Spacing.sm },
+  chipScroll: { maxHeight: 42 },
   chipContent: { paddingHorizontal: Spacing.md, gap: Spacing.sm, alignItems: 'center' },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
     gap: 4,
   },
-  chipActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
-  chipIcon: { fontSize: 13 },
-  chipText: { ...Typography.caption, color: Colors.textSecondary },
-  chipTextActive: { color: Colors.primary, fontWeight: '600' },
+  chipActive: { backgroundColor: Colors.black },
+  chipDot: { width: 6, height: 6 },
+  chipText: { ...Typography.caption, color: Colors.black },
+  chipTextActive: { color: Colors.white },
   actionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.sm },
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs + 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
     gap: 4,
   },
-  actionBtnActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  actionText: { ...Typography.caption, color: Colors.textSecondary },
-  actionTextActive: { color: Colors.primary, fontWeight: '600' },
+  actionBtnActive: { backgroundColor: Colors.black },
+  actionText: { ...Typography.caption, color: Colors.black },
+  actionTextActive: { color: Colors.white },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 },
   amountInput: {
     flex: 1,
     ...Typography.caption,
-    color: Colors.text,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 6,
+    color: Colors.black,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.black,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     textAlign: 'center',
   },
-  amountSep: { ...Typography.caption, color: Colors.textTertiary },
-  clearBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  clearText: { ...Typography.caption, color: Colors.error },
+  amountSep: { ...Typography.caption, color: Colors.black },
+  clearBtn: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs + 2,
+    borderWidth: BorderWidth.normal,
+    borderColor: Colors.red,
+  },
+  clearText: { ...Typography.caption, color: Colors.red },
   modalOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'flex-end' },
   dateSheet: {
     backgroundColor: Colors.surface,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopWidth: BorderWidth.heavy,
+    borderTopColor: Colors.black,
     padding: Spacing.xl,
     paddingBottom: Spacing.xxxl,
   },
-  sheetTitle: { ...Typography.h3, color: Colors.text, marginBottom: Spacing.lg },
-  dateOption: { paddingVertical: Spacing.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
-  dateOptionText: { ...Typography.body, color: Colors.text },
+  sheetTitle: { ...Typography.h3, color: Colors.black, marginBottom: Spacing.lg },
+  dateOption: {
+    paddingVertical: Spacing.md,
+    borderBottomWidth: BorderWidth.thin,
+    borderBottomColor: Colors.lightGray,
+  },
+  dateOptionText: { ...Typography.body, color: Colors.black },
 });
